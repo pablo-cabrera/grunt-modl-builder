@@ -24,8 +24,11 @@ module.exports = function(grunt) {
 
         files.forEach(function (f) {
             f.src.forEach(function (f) {
-                var content = grunt.file.read(path.join(modulePath, f));
+                var filePath = path.join(modulePath, f);
+                var content = grunt.file.read(filePath);
+
                 module["/" + f.replace(/\.js$/, "")] = content;
+                grunt.log.writeln("Adding file " + filePath);
             });
         });
 
@@ -34,13 +37,16 @@ module.exports = function(grunt) {
 
             if (fs.existsSync(subModulePath)) {
                 var modl = readModl(subModulePath);
+                grunt.log.writeln("Adding subModule " + subModulePath);
                 module[m] = processModule(modl.files, modl.modules, subModulePath, root);
             } else {
                 module[m] = undefined;
+                grunt.log.writeln("Submodule not found " + subModulePath + " skipping...");
             }
         });
 
         if (module === root) {
+            grunt.log.writeln("Processing subModule references");
             processModuleReferences(module, grunt.config("pkg").name);
         }
 
@@ -61,7 +67,6 @@ module.exports = function(grunt) {
                 m = stack[i];
                 if ((r in m.module) && typeof m.module[r] === "object") {
                     path = getPath(stack, m);
-                    console.log(path);
                     i = -1;
                 }
 
@@ -150,24 +155,17 @@ module.exports = function(grunt) {
 
     grunt.registerMultiTask('modlfy', 'modl builder for browser environments.', function() {
         var options = this.options({
+            build: "build",
             modules: []
         });
 
         var module = processModule(this.files, options.modules, ".");
         module = concatModule(module);
 
-        console.log("=========");
-        console.log(module);
-        console.log("=========");
-
         module = "modl.$module(" + module + ");";
+        module = uglifyJs.minify(module, { fromString: true }).code;
 
-        module = uglifyJs.minify(module, { fromString: true}).code;
-        console.log("=========");
-        console.log(module);
-        console.log("=========");
-
-
+        grunt.file.write(options.build + "/module.js", module);
     });
 
 };
