@@ -15,7 +15,9 @@ module.exports = function(grunt) {
     var path = require("path");
     var uglifyJs = require("uglify-js");
 
-    var processModule = function (files, modules, modulePath, root) {
+    var processModule = function (modl, modulePath, root) {
+        var files = modl.files;
+        var modules = modl.modules;
         var module = {};
 
         if (!root) {
@@ -36,9 +38,8 @@ module.exports = function(grunt) {
             var subModulePath = path.join(modulePath, "/node_modules/", m);
 
             if (fs.existsSync(subModulePath)) {
-                var modl = readModl(subModulePath);
                 grunt.log.writeln("Adding subModule " + subModulePath);
-                module[m] = processModule(modl.files, modl.modules, subModulePath, root);
+                module[m] = processModule(readModl(subModulePath), subModulePath, root);
             } else {
                 module[m] = undefined;
                 grunt.log.writeln("Submodule not found " + subModulePath + " skipping...");
@@ -149,17 +150,17 @@ module.exports = function(grunt) {
 
         return {
             files: grunt.task.normalizeMultiTaskFiles(json.files),
-            modules: ("options" in json? json.options.modules: []) || []
+            modules: json.modules || []
         };
     };
 
-    grunt.registerMultiTask('modlfy', 'modl builder for browser environments.', function() {
-        var options = this.options({
-            build: "build",
-            modules: []
-        });
+    // dummy config
+    grunt.config("modlfy", { files: "" });
 
-        var module = processModule(this.files, options.modules, ".");
+    grunt.registerMultiTask('modlfy', 'modl builder for browser environments.', function() {
+        var options = this.options({ build: "build" });
+
+        var module = processModule(readModl("."), ".");
         module = concatModule(module);
 
         module = "modl.$module(" + module + ");";
