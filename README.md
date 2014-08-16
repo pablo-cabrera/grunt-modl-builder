@@ -17,73 +17,46 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-modl-builder');
 ```
 
-## The "modl_builder" task
+## The "modlfy" task
 
-### Overview
-In your project's Gruntfile, add a section named `modl_builder` to the data object passed into `grunt.initConfig()`.
+_Run this task with the `grunt modlfy` command._
 
-```js
-grunt.initConfig({
-  modl_builder: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
-  },
-});
+The modlfy task concatenates js files and sub-modules within a single file that may be deployed on a web-server.
+
+To tell modlfy which files and sub-modules should be concatenated, a `modl.json` file should be placed on your project root.
+
+`modl.json`
+```json
+{
+    "files": [
+        "lib/foo.js",
+        "src/**/*.js"
+    ],
+
+    "modules": [
+        "bar",
+        "baz"
+    ]
+}
 ```
+
+The JSON only has the `files` entry and the `modules` entry. The `files` should be an array of files (supports node-glob patterns), and the `modules` should be an array of sub-modules (written with modl) required on the `package.json` as dependencies themselves.
 
 ### Options
 
-#### options.separator
+#### options.build
 Type: `String`
-Default value: `',  '`
+Default value: `build`
 
-A string value that is used to do something with whatever.
+The location where the modlfied file should be put
 
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
-
-### Usage Examples
-
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+### Usage Example
 
 ```js
 grunt.initConfig({
-  modl_builder: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
+    modlfy: {
+        build: "custom-build"
+    }
 });
 ```
-
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
-
-```js
-grunt.initConfig({
-  modl_builder: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
-```
-
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-_(Nothing yet)_
