@@ -21,7 +21,7 @@ grunt.loadNpmTasks('grunt-modl-builder');
 
 _Run this task with the `grunt modlfy` command._
 
-The modlfy task concatenates js files and sub-modules within a single file that may be deployed on a web-server.
+The modlfy task concatenates **js** files and **sub-modules** within a single file that may be deployed on a web-server.
 
 To tell modlfy which files and sub-modules should be concatenated, a `modl.json` file should be placed on your project root.
 
